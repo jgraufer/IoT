@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: iot-edge
+
+  config:
+    import: "optional:file:../../.env[.properties]"
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/iot_edge
+    username: iot_edge
+    password: ${POSTGRES_EDGE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+
+server:
+  port: 8082
+
+app:
+  mqtt:
+    cloud-broker-url: tcp://localhost:1883
+    cloud-bootstrap-username: edge-bootstrap
+    cloud-bootstrap-password: ${MQTT_BOOTSTRAP_PASSWORD}
+    local-broker-url: tcp://localhost:1884
+    local-username: edge-backend
+    local-password: ${MQTT_EDGE_LOCAL_PASSWORD}
+
+cors:
+  allowed-origins:
+    - http://localhost:5174
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
+    - OPTIONS
+  allowed-headers:
+    - "*"
+
+logging:
+  level:
+    com.iot.platform.edge: DEBUG

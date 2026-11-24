@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: iot-cloud-backend
+
+  config:
+    import: "optional:file:../../.env[.properties]"
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/iot_cloud
+    username: iot_cloud
+    password: ${POSTGRES_CLOUD_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+
+server:
+  port: 8081
+
+jwt:
+  secret: ${JWT_SECRET}
+
+app:
+  mqtt:
+    broker-url: tcp://localhost:1883
+    username: iot-cloud
+    password: ${MQTT_CLOUD_PASSWORD}
+
+cors:
+  allowed-origins:
+    - http://localhost:5173
+    - http://localhost:5174
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
+    - OPTIONS
+  allowed-headers:
+    - "*"
+
+logging:
+  level:
+    com.iot.platform.cloud: DEBUG

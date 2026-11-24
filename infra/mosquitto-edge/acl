@@ -1,0 +1,7 @@
+user edge-backend
+topic read  devices/+/telemetry
+topic write devices/+/commands
+
+user device-default
+topic write devices/+/telemetry
+topic read  devices/+/commands

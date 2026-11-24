@@ -1,0 +1,7 @@
+.env
+target/
+node_modules/
+dist/
+dist-edge/
+__pycache__/
+.idea/

@@ -1,0 +1,16 @@
+user iot-cloud
+topic read  edge/bootstrap/register
+topic read  edge/+/telemetry
+topic read  edge/+/devices/events
+topic write cloud/bootstrap/+/registered
+topic write cloud/+/sync/users
+topic write cloud/+/commands
+
+user edge-bootstrap
+topic write edge/bootstrap/register
+
+pattern read  cloud/bootstrap/%c/registered
+pattern read  cloud/%c/sync/users
+pattern read  cloud/%c/commands
+pattern write edge/%c/telemetry
+pattern write edge/%c/devices/events

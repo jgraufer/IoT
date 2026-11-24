@@ -1,0 +1,72 @@
+services:
+  postgres-cloud:
+    image: postgres:16
+    container_name: iot-postgres-cloud
+    environment:
+      POSTGRES_DB: iot_cloud
+      POSTGRES_USER: iot_cloud
+      POSTGRES_PASSWORD: ${POSTGRES_CLOUD_PASSWORD}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-cloud-data:/var/lib/postgresql/data
+
+  postgres-edge:
+    image: postgres:16
+    container_name: iot-postgres-edge
+    environment:
+      POSTGRES_DB: iot_edge
+      POSTGRES_USER: iot_edge
+      POSTGRES_PASSWORD: ${POSTGRES_EDGE_PASSWORD}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - postgres-edge-data:/var/lib/postgresql/data
+
+  mosquitto-cloud:
+    image: eclipse-mosquitto:2
+    container_name: iot-mosquitto-cloud
+    ports:
+      - "1883:1883"
+    environment:
+      MQTT_CLOUD_PASSWORD: ${MQTT_CLOUD_PASSWORD}
+      MQTT_BOOTSTRAP_PASSWORD: ${MQTT_BOOTSTRAP_PASSWORD}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        rm -f /mosquitto/config/passwd &&
+        mosquitto_passwd -c -b /mosquitto/config/passwd iot-cloud "$$MQTT_CLOUD_PASSWORD" &&
+        mosquitto_passwd -b /mosquitto/config/passwd edge-bootstrap "$$MQTT_BOOTSTRAP_PASSWORD" &&
+        chown mosquitto:mosquitto /mosquitto/config/passwd &&
+        exec mosquitto -c /mosquitto/config/mosquitto.conf
+    volumes:
+      - ./infra/mosquitto-cloud/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./infra/mosquitto-cloud/acl:/mosquitto/config/acl:ro
+      - mosquitto-cloud-data:/mosquitto/data
+
+  mosquitto-edge:
+    image: eclipse-mosquitto:2
+    container_name: iot-mosquitto-edge
+    ports:
+      - "1884:1883"
+    environment:
+      MQTT_EDGE_LOCAL_PASSWORD: ${MQTT_EDGE_LOCAL_PASSWORD}
+      MQTT_DEVICE_PASSWORD: ${MQTT_DEVICE_PASSWORD}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        rm -f /mosquitto/config/passwd &&
+        mosquitto_passwd -c -b /mosquitto/config/passwd edge-backend "$$MQTT_EDGE_LOCAL_PASSWORD" &&
+        mosquitto_passwd -b /mosquitto/config/passwd device-default "$$MQTT_DEVICE_PASSWORD" &&
+        chown mosquitto:mosquitto /mosquitto/config/passwd &&
+        exec mosquitto -c /mosquitto/config/mosquitto.conf
+    volumes:
+      - ./infra/mosquitto-edge/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./infra/mosquitto-edge/acl:/mosquitto/config/acl:ro
+      - mosquitto-edge-data:/mosquitto/data
+
+volumes:
+  postgres-cloud-data:
+  postgres-edge-data:
+  mosquitto-cloud-data:
+  mosquitto-edge-data:
